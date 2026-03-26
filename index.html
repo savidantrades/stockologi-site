@@ -824,14 +824,51 @@ function buildTape() {
 
 buildTape();
 
-function handleSubmit(inputId, formId, successId) {
+async function handleSubmit(inputId, formId, successId) {
   const email = document.getElementById(inputId).value.trim();
   if (!email || !email.includes('@')) {
     document.getElementById(inputId).style.borderBottom = '1px solid #e05252';
     return;
   }
-  document.getElementById(formId).style.display = 'none';
-  document.getElementById(successId).style.display = 'block';
+
+  const btn = document.querySelector(`#${formId} button`);
+  btn.textContent = 'Adding...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('https://api.brevo.com/v3/contacts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'api-key': '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'
+      },
+      body: JSON.stringify({
+        email: email,
+        listIds: [7],
+        updateEnabled: true,
+        attributes: {
+          SOURCE: 'YOLO10 Lander'
+        }
+      })
+    });
+
+    if (res.status === 201 || res.status === 204) {
+      document.getElementById(formId).style.display = 'none';
+      document.getElementById(successId).style.display = 'block';
+    } else {
+      const data = await res.json();
+      if (data.code === 'duplicate_parameter') {
+        document.getElementById(formId).style.display = 'none';
+        document.getElementById(successId).style.display = 'block';
+      } else {
+        btn.textContent = 'Try Again';
+        btn.disabled = false;
+      }
+    }
+  } catch(e) {
+    btn.textContent = 'Try Again';
+    btn.disabled = false;
+  }
 }
 </script>
 </body>
