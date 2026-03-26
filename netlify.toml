@@ -1,0 +1,19 @@
+[[redirects]]
+  from = "/api/brevo/*"
+  to = "https://api.brevo.com/v3/:splat"
+  status = 200
+  force = true
+  headers = {X-From = "Netlify"}
+```
+
+Commit it.
+
+**Step 2 — I'll update the fetch URL in the HTML**
+
+Change one line in the JavaScript from:
+```
+fetch('https://api.brevo.com/v3/contacts'
+```
+to:
+```
+fetch('/api/brevo/contacts'
