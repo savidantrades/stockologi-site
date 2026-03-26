@@ -836,34 +836,20 @@ async function handleSubmit(inputId, formId, successId) {
   btn.disabled = true;
 
   try {
-    const res = await fetch('https://api.brevo.com/v3/contacts', {
+    const res = await fetch('/.netlify/functions/subscribe', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'api-key': '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'
-      },
-      body: JSON.stringify({
-        email: email,
-        listIds: [7],
-        updateEnabled: true,
-        attributes: {
-          SOURCE: 'YOLO10 Lander'
-        }
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email })
     });
 
-    if (res.status === 201 || res.status === 204) {
+    const data = await res.json();
+
+    if (res.status === 200 && data.success) {
       document.getElementById(formId).style.display = 'none';
       document.getElementById(successId).style.display = 'block';
     } else {
-      const data = await res.json();
-      if (data.code === 'duplicate_parameter') {
-        document.getElementById(formId).style.display = 'none';
-        document.getElementById(successId).style.display = 'block';
-      } else {
-        btn.textContent = 'Try Again';
-        btn.disabled = false;
-      }
+      btn.textContent = 'Try Again';
+      btn.disabled = false;
     }
   } catch(e) {
     btn.textContent = 'Try Again';
