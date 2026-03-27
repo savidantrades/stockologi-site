@@ -3,585 +3,132 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YOLO10 — Stockologi</title>
+<title>YOLO10 — Stockologi CDF Framework</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --gold: #C9A84C;
-    --gold-dim: #8a6e2f;
-    --green: #2ECC71;
-    --green-dim: #1a7a43;
-    --bg: #0a0a08;
-    --bg2: #111110;
-    --bg3: #1a1a17;
-    --border: rgba(201,168,76,0.15);
-    --border-bright: rgba(201,168,76,0.4);
-    --text: #e8e4d8;
-    --text-dim: #7a7568;
-    --text-mid: #a09880;
-    --red: #e05252;
-    --font-display: 'Bebas Neue', sans-serif;
-    --font-mono: 'DM Mono', monospace;
-    --font-body: 'DM Sans', sans-serif;
-  }
-
-  html { scroll-behavior: smooth; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font-body);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* NOISE TEXTURE */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.4;
-  }
-
-  /* NAV */
-  nav {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.2rem 2.5rem;
-    border-bottom: 0.5px solid var(--border);
-    background: rgba(10,10,8,0.85);
-    backdrop-filter: blur(12px);
-  }
-
-  .nav-logo {
-    font-family: var(--font-mono);
-    font-size: 13px;
-    font-weight: 500;
-    letter-spacing: 0.15em;
-    color: var(--gold);
-    text-transform: uppercase;
-  }
-
-  .nav-tag {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--text-dim);
-    letter-spacing: 0.1em;
-  }
-
-  /* HERO */
-  .hero {
-    position: relative;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 8rem 1.5rem 4rem;
-    text-align: center;
-    z-index: 1;
-  }
-
-  .hero-eyebrow {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.25em;
-    color: var(--gold);
-    text-transform: uppercase;
-    margin-bottom: 1.5rem;
-    opacity: 0;
-    animation: fadeUp 0.6s ease forwards 0.2s;
-  }
-
-  .hero-title {
-    font-family: var(--font-display);
-    font-size: clamp(88px, 18vw, 180px);
-    line-height: 0.9;
-    letter-spacing: 0.02em;
-    color: var(--text);
-    margin-bottom: 0.2em;
-    opacity: 0;
-    animation: fadeUp 0.7s ease forwards 0.35s;
-  }
-
-  .hero-title span {
-    color: var(--gold);
-  }
-
-  .hero-sub {
-    font-family: var(--font-body);
-    font-size: clamp(15px, 2.2vw, 19px);
-    font-weight: 300;
-    color: var(--text-mid);
-    max-width: 580px;
-    line-height: 1.6;
-    margin-bottom: 3rem;
-    opacity: 0;
-    animation: fadeUp 0.7s ease forwards 0.5s;
-  }
-
-  .hero-sub strong {
-    color: var(--text);
-    font-weight: 500;
-  }
-
-  /* EMAIL GATE */
-  .gate-box {
-    width: 100%;
-    max-width: 480px;
-    opacity: 0;
-    animation: fadeUp 0.7s ease forwards 0.65s;
-  }
-
-  .gate-form {
-    display: flex;
-    gap: 0;
-    border: 0.5px solid var(--border-bright);
-    border-radius: 4px;
-    overflow: hidden;
-    background: var(--bg2);
-  }
-
-  .gate-form input {
-    flex: 1;
-    background: transparent;
-    border: none;
-    outline: none;
-    padding: 14px 18px;
-    font-family: var(--font-mono);
-    font-size: 13px;
-    color: var(--text);
-    letter-spacing: 0.05em;
-  }
-
-  .gate-form input::placeholder {
-    color: var(--text-dim);
-  }
-
-  .gate-form button {
-    background: var(--gold);
-    color: #0a0a08;
-    border: none;
-    padding: 14px 24px;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: background 0.2s;
-    white-space: nowrap;
-  }
-
-  .gate-form button:hover { background: #e0b94f; }
-
-  .gate-note {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--text-dim);
-    margin-top: 10px;
-    letter-spacing: 0.05em;
-  }
-
-  .gate-note span {
-    color: var(--green);
-  }
-
-  /* SUCCESS STATE */
-  .success-msg {
-    display: none;
-    font-family: var(--font-mono);
-    font-size: 13px;
-    color: var(--green);
-    letter-spacing: 0.08em;
-    padding: 14px 18px;
-    border: 0.5px solid rgba(46,204,113,0.3);
-    border-radius: 4px;
-    background: rgba(46,204,113,0.05);
-  }
-
-  /* BLURRED LEADERBOARD */
-  .board-section {
-    position: relative;
-    padding: 0 1.5rem 6rem;
-    z-index: 1;
-    opacity: 0;
-    animation: fadeUp 0.8s ease forwards 0.85s;
-  }
-
-  .board-label {
-    text-align: center;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    color: var(--gold-dim);
-    text-transform: uppercase;
-    margin-bottom: 1.5rem;
-  }
-
-  .board-wrapper {
-    position: relative;
-    max-width: 900px;
-    margin: 0 auto;
-  }
-
-  .board-blur {
-    filter: blur(7px);
-    pointer-events: none;
-    user-select: none;
-  }
-
-  .board-overlay {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    z-index: 10;
-    background: linear-gradient(to bottom, transparent 0%, rgba(10,10,8,0.3) 40%, rgba(10,10,8,0.7) 100%);
-    border-radius: 6px;
-  }
-
-  .lock-badge {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    color: var(--gold);
-    text-transform: uppercase;
-    border: 0.5px solid var(--border-bright);
-    padding: 8px 20px;
-    border-radius: 2px;
-    background: rgba(10,10,8,0.8);
-  }
-
-  .lock-sub {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--text-dim);
-    letter-spacing: 0.08em;
-  }
-
-  /* BOARD TABLE */
-  .board-header {
-    display: grid;
-    grid-template-columns: 80px 1fr 120px 120px 100px;
-    gap: 0;
-    padding: 10px 20px;
-    border: 0.5px solid var(--border);
-    border-bottom: none;
-    border-radius: 6px 6px 0 0;
-    background: var(--bg3);
-  }
-
-  .board-header span {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.15em;
-    color: var(--text-dim);
-    text-transform: uppercase;
-  }
-
-  .board-row {
-    display: grid;
-    grid-template-columns: 80px 1fr 120px 120px 100px;
-    gap: 0;
-    padding: 14px 20px;
-    border: 0.5px solid var(--border);
-    border-bottom: none;
-    background: var(--bg2);
-    align-items: center;
-  }
-
-  .board-row:last-child {
-    border-bottom: 0.5px solid var(--border);
-    border-radius: 0 0 6px 6px;
-  }
-
-  .board-row:nth-child(even) {
-    background: var(--bg3);
-  }
-
-  .sector-tag {
-    font-family: var(--font-mono);
-    font-size: 9px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    padding: 3px 8px;
-    border-radius: 2px;
-  }
-
-  .sector-defense { background: rgba(201,168,76,0.1); color: var(--gold); }
-  .sector-ai { background: rgba(46,204,113,0.1); color: var(--green); }
-  .sector-tech { background: rgba(80,130,200,0.1); color: #6baed6; }
-  .sector-energy { background: rgba(220,100,50,0.12); color: #e07040; }
-  .sector-materials { background: rgba(160,80,200,0.1); color: #b07ad0; }
-
-  .ticker-cell {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-  }
-
-  .ticker-sym {
-    font-family: var(--font-mono);
-    font-size: 15px;
-    font-weight: 500;
-    color: var(--text);
-    filter: blur(4px);
-  }
-
-  .ticker-name {
-    font-family: var(--font-body);
-    font-size: 11px;
-    color: var(--text-dim);
-    filter: blur(4px);
-  }
-
-  .profile-tag {
-    font-family: var(--font-mono);
-    font-size: 9px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 3px 8px;
-    border-radius: 2px;
-    display: inline-block;
-  }
-
-  .profile-inst { background: rgba(80,130,200,0.12); color: #6baed6; }
-  .profile-degen { background: rgba(224,80,80,0.12); color: var(--red); }
-
-  .score-cell {
-    font-family: var(--font-mono);
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text);
-    filter: blur(4px);
-  }
-
-  .rating-cell {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.12em;
-    font-weight: 500;
-    filter: blur(4px);
-  }
-
-  .rating-bullish { color: var(--green); }
-  .rating-watch { color: var(--gold); }
-  .rating-constructive { color: #6baed6; }
-
-  /* PROOF STRIP */
-  .proof-strip {
-    position: relative;
-    z-index: 1;
-    border-top: 0.5px solid var(--border);
-    border-bottom: 0.5px solid var(--border);
-    padding: 2.5rem 1.5rem;
-    background: var(--bg2);
-    opacity: 0;
-    animation: fadeUp 0.7s ease forwards 1.1s;
-  }
-
-  .proof-inner {
-    max-width: 900px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 2rem;
-    text-align: center;
-  }
-
-  .proof-stat {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .proof-num {
-    font-family: var(--font-display);
-    font-size: 42px;
-    color: var(--gold);
-    line-height: 1;
-  }
-
-  .proof-label {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.15em;
-    color: var(--text-dim);
-    text-transform: uppercase;
-  }
-
-  /* HOW IT WORKS */
-  .how-section {
-    position: relative;
-    z-index: 1;
-    padding: 5rem 1.5rem;
-    max-width: 900px;
-    margin: 0 auto;
-    opacity: 0;
-    animation: fadeUp 0.7s ease forwards 1.3s;
-  }
-
-  .section-label {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    color: var(--gold-dim);
-    text-transform: uppercase;
-    margin-bottom: 2.5rem;
-    text-align: center;
-  }
-
-  .criteria-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1px;
-    background: var(--border);
-    border: 0.5px solid var(--border);
-    border-radius: 6px;
-    overflow: hidden;
-  }
-
-  .criterion {
-    padding: 1.25rem 1.5rem;
-    background: var(--bg2);
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .criterion-num {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    color: var(--gold-dim);
-    letter-spacing: 0.1em;
-  }
-
-  .criterion-name {
-    font-family: var(--font-body);
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text);
-  }
-
-  .criterion-desc {
-    font-family: var(--font-body);
-    font-size: 12px;
-    color: var(--text-dim);
-    line-height: 1.5;
-  }
-
-  /* FINAL CTA */
-  .final-cta {
-    position: relative;
-    z-index: 1;
-    text-align: center;
-    padding: 5rem 1.5rem 7rem;
-    border-top: 0.5px solid var(--border);
-    opacity: 0;
-    animation: fadeUp 0.7s ease forwards 1.5s;
-  }
-
-  .final-cta h2 {
-    font-family: var(--font-display);
-    font-size: clamp(36px, 7vw, 72px);
-    color: var(--text);
-    margin-bottom: 1rem;
-    line-height: 1;
-  }
-
-  .final-cta h2 span { color: var(--gold); }
-
-  .final-cta p {
-    font-size: 15px;
-    color: var(--text-dim);
-    margin-bottom: 2.5rem;
-    font-weight: 300;
-  }
-
-  .final-gate {
-    max-width: 440px;
-    margin: 0 auto;
-  }
-
-  /* FOOTER */
-  footer {
-    position: relative;
-    z-index: 1;
-    padding: 1.5rem 2.5rem;
-    border-top: 0.5px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  footer p {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    color: var(--text-dim);
-    letter-spacing: 0.08em;
-  }
-
-  /* TICKER TAPE */
-  .tape-wrapper {
-    position: relative;
-    z-index: 1;
-    overflow: hidden;
-    border-top: 0.5px solid var(--border);
-    border-bottom: 0.5px solid var(--border);
-    background: var(--bg3);
-    padding: 10px 0;
-    margin-bottom: 0;
-  }
-
-  .tape-inner {
-    display: flex;
-    gap: 0;
-    white-space: nowrap;
-    animation: tape 30s linear infinite;
-  }
-
-  .tape-item {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    color: var(--text-dim);
-    padding: 0 2rem;
-    border-right: 0.5px solid var(--border);
-  }
-
-  .tape-item span { color: var(--gold); margin-right: 6px; }
-  .tape-item .up { color: var(--green); }
-  .tape-item .down { color: var(--red); }
-
-  @keyframes tape {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(18px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @media (max-width: 600px) {
-    nav { padding: 1rem 1.25rem; }
-    .board-header, .board-row { grid-template-columns: 70px 1fr 90px 80px; }
-    .board-header span:nth-child(5),
-    .board-row > *:nth-child(5) { display: none; }
-  }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --gold: #C9A84C; --gold-dim: #8a6e2f; --green: #2ECC71; --green-dim: #1a7a43;
+  --bg: #0a0a08; --bg2: #111110; --bg3: #1a1a17;
+  --border: rgba(201,168,76,0.15); --border-bright: rgba(201,168,76,0.4);
+  --text: #e8e4d8; --text-dim: #7a7568; --text-mid: #a09880; --red: #e05252; --blue: #6baed6;
+  --font-display: 'Bebas Neue', sans-serif; --font-mono: 'DM Mono', monospace; --font-body: 'DM Sans', sans-serif;
+}
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; overflow-x: hidden; }
+body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; opacity: 0.4; }
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 1.2rem 2.5rem; border-bottom: 0.5px solid var(--border); background: rgba(10,10,8,0.9); backdrop-filter: blur(12px); }
+.nav-logo { font-family: var(--font-mono); font-size: 13px; font-weight: 500; letter-spacing: 0.15em; color: var(--gold); text-transform: uppercase; }
+.nav-tag { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); letter-spacing: 0.1em; }
+.tape-wrapper { position: relative; z-index: 1; overflow: hidden; border-top: 0.5px solid var(--border); border-bottom: 0.5px solid var(--border); background: var(--bg3); padding: 10px 0; margin-top: 57px; }
+.tape-inner { display: flex; white-space: nowrap; animation: tape 30s linear infinite; }
+.tape-item { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; color: var(--text-dim); padding: 0 2rem; border-right: 0.5px solid var(--border); }
+.tape-item span { color: var(--gold); margin-right: 6px; }
+.tape-item .up { color: var(--green); }
+.tape-item .dn { color: var(--red); }
+.hero { position: relative; z-index: 1; padding: 6rem 1.5rem 3rem; text-align: center; }
+.hero-eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.25em; color: var(--gold); text-transform: uppercase; margin-bottom: 1.5rem; opacity: 0; animation: fadeUp 0.6s ease forwards 0.2s; }
+.hero-title { font-family: var(--font-display); font-size: clamp(88px, 18vw, 180px); line-height: 0.9; color: var(--text); margin-bottom: 0.2em; opacity: 0; animation: fadeUp 0.7s ease forwards 0.35s; }
+.hero-title span { color: var(--gold); }
+.hero-sub { font-size: clamp(15px, 2.2vw, 19px); font-weight: 300; color: var(--text-mid); max-width: 600px; margin: 0 auto 2.5rem; line-height: 1.6; opacity: 0; animation: fadeUp 0.7s ease forwards 0.5s; }
+.hero-sub strong { color: var(--text); font-weight: 500; }
+.stamp-row { display: flex; align-items: center; justify-content: center; gap: 2rem; margin-bottom: 3rem; flex-wrap: wrap; opacity: 0; animation: fadeUp 0.6s ease forwards 0.6s; }
+.stamp { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.15em; color: var(--text-dim); text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
+.stamp-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+.stamp-dot.gold { background: var(--gold); }
+.gate-box { width: 100%; max-width: 480px; margin: 0 auto; opacity: 0; animation: fadeUp 0.7s ease forwards 0.65s; }
+.gate-form { display: flex; border: 0.5px solid var(--border-bright); border-radius: 4px; overflow: hidden; background: var(--bg2); }
+.gate-form input { flex: 1; background: transparent; border: none; outline: none; padding: 14px 18px; font-family: var(--font-mono); font-size: 13px; color: var(--text); letter-spacing: 0.05em; }
+.gate-form input::placeholder { color: var(--text-dim); }
+.gate-form button { background: var(--gold); color: #0a0a08; border: none; padding: 14px 24px; font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
+.gate-form button:hover { background: #e0b94f; }
+.gate-note { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); margin-top: 10px; letter-spacing: 0.05em; text-align: center; }
+.gate-note span { color: var(--green); }
+.success-msg { display: none; font-family: var(--font-mono); font-size: 13px; color: var(--green); letter-spacing: 0.08em; padding: 14px 18px; border: 0.5px solid rgba(46,204,113,0.3); border-radius: 4px; background: rgba(46,204,113,0.05); text-align: center; }
+.section-wrap { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; padding: 0 1.5rem; }
+.section-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.2em; color: var(--gold-dim); text-transform: uppercase; margin-bottom: 2rem; padding-top: 4rem; border-top: 0.5px solid var(--border); }
+.picks-grid { display: flex; flex-direction: column; gap: 1px; background: var(--border); border: 0.5px solid var(--border); border-radius: 8px; overflow: hidden; }
+.pick-card { background: var(--bg2); padding: 2rem; display: grid; grid-template-columns: 140px 1fr; gap: 2rem; }
+.pick-card:nth-child(even) { background: var(--bg3); }
+.pick-left { display: flex; flex-direction: column; gap: 12px; border-right: 0.5px solid var(--border); padding-right: 2rem; }
+.pick-num { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); letter-spacing: 0.15em; }
+.pick-ticker { font-family: var(--font-display); font-size: 52px; color: var(--text); line-height: 1; }
+.pick-name { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); letter-spacing: 0.05em; }
+.pick-type { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; padding: 4px 10px; border-radius: 2px; display: inline-block; width: fit-content; }
+.type-leaps { background: rgba(107,174,214,0.1); color: var(--blue); border: 0.5px solid rgba(107,174,214,0.3); }
+.type-direct { background: rgba(46,204,113,0.1); color: var(--green); border: 0.5px solid rgba(46,204,113,0.3); }
+.pick-right { display: flex; flex-direction: column; gap: 1.25rem; }
+.pick-score-row { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+.score-display { display: flex; flex-direction: column; gap: 4px; }
+.score-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.15em; color: var(--text-dim); text-transform: uppercase; }
+.score-val { font-family: var(--font-display); font-size: 38px; line-height: 1; color: var(--text); }
+.score-val span { color: var(--text-dim); font-size: 24px; }
+.rating-badge { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; padding: 6px 14px; border-radius: 2px; }
+.rating-high { background: rgba(46,204,113,0.12); color: var(--green); border: 0.5px solid rgba(46,204,113,0.3); }
+.rating-constructive { background: rgba(107,174,214,0.12); color: var(--blue); border: 0.5px solid rgba(107,174,214,0.3); }
+.pick-thesis { font-size: 14px; color: var(--text-mid); line-height: 1.6; font-style: italic; border-left: 2px solid var(--gold-dim); padding-left: 1rem; }
+.pick-matrix { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border: 0.5px solid var(--border); border-radius: 4px; overflow: hidden; }
+.matrix-cell { background: var(--bg); padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; }
+.matrix-cell-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.1em; color: var(--text-dim); text-transform: uppercase; }
+.matrix-cell-val { font-family: var(--font-mono); font-size: 10px; font-weight: 500; }
+.bull { color: var(--green); }
+.watch-col { color: var(--gold); }
+.pick-leaps-box { background: var(--bg3); border: 0.5px solid var(--border-bright); border-radius: 4px; padding: 1rem 1.25rem; }
+.leaps-title { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.15em; color: var(--gold); text-transform: uppercase; margin-bottom: 10px; }
+.leaps-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+.leaps-cell { display: flex; flex-direction: column; gap: 3px; }
+.leaps-cell-label { font-family: var(--font-mono); font-size: 9px; color: var(--text-dim); letter-spacing: 0.08em; }
+.leaps-cell-val { font-family: var(--font-mono); font-size: 12px; color: var(--text); font-weight: 500; }
+.pick-risks { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); line-height: 1.6; }
+.pick-risks strong { color: var(--gold); }
+.timestamp-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-top: 0.5px solid var(--border); margin-top: 4px; flex-wrap: wrap; gap: 8px; }
+.timestamp { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); letter-spacing: 0.08em; }
+.timestamp span { color: var(--gold); }
+.paywall-section { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; padding: 0 1.5rem 2rem; }
+.paywall-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.2em; color: var(--gold-dim); text-transform: uppercase; margin-bottom: 2rem; padding-top: 4rem; border-top: 0.5px solid var(--border); }
+.locked-grid { display: flex; flex-direction: column; gap: 1px; background: var(--border); border: 0.5px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 2.5rem; }
+.locked-row { background: var(--bg2); padding: 1.5rem 2rem; display: flex; align-items: center; justify-content: space-between; filter: blur(4px); pointer-events: none; user-select: none; }
+.locked-row:nth-child(even) { background: var(--bg3); }
+.locked-ticker { font-family: var(--font-display); font-size: 36px; color: var(--text-dim); }
+.locked-meta { display: flex; flex-direction: column; gap: 4px; }
+.locked-sector { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); letter-spacing: 0.1em; }
+.locked-score { font-family: var(--font-mono); font-size: 13px; color: var(--text-dim); }
+.locked-rating { font-family: var(--font-mono); font-size: 10px; color: var(--green); }
+.paywall-overlay { position: relative; margin-top: -440px; height: 440px; background: linear-gradient(to bottom, transparent 0%, var(--bg) 45%); display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 2rem; z-index: 10; }
+.paywall-card { background: var(--bg2); border: 0.5px solid var(--border-bright); border-radius: 8px; padding: 2.5rem; max-width: 500px; width: 100%; text-align: center; }
+.paywall-card-eyebrow { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.2em; color: var(--gold); text-transform: uppercase; margin-bottom: 1rem; }
+.paywall-card-title { font-family: var(--font-display); font-size: 42px; color: var(--text); line-height: 1; margin-bottom: 0.5rem; }
+.paywall-card-title span { color: var(--gold); }
+.paywall-card-sub { font-size: 14px; color: var(--text-dim); line-height: 1.6; margin-bottom: 1.5rem; font-weight: 300; }
+.paywall-includes { display: flex; flex-direction: column; gap: 8px; text-align: left; margin-bottom: 1.5rem; }
+.paywall-include-item { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: var(--text-mid); }
+.paywall-include-item::before { content: '✓'; color: var(--green); font-family: var(--font-mono); font-size: 12px; flex-shrink: 0; margin-top: 1px; }
+.paywall-price { font-family: var(--font-display); font-size: 56px; color: var(--text); line-height: 1; margin-bottom: 0.25rem; }
+.paywall-price-sub { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); letter-spacing: 0.1em; margin-bottom: 1.5rem; }
+.paywall-gate { display: flex; border: 0.5px solid var(--border-bright); border-radius: 4px; overflow: hidden; background: var(--bg3); margin-bottom: 10px; }
+.paywall-gate input { flex: 1; background: transparent; border: none; outline: none; padding: 13px 16px; font-family: var(--font-mono); font-size: 12px; color: var(--text); letter-spacing: 0.05em; }
+.paywall-gate input::placeholder { color: var(--text-dim); }
+.paywall-gate button { background: var(--gold); color: #0a0a08; border: none; padding: 13px 20px; font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; white-space: nowrap; transition: background 0.2s; }
+.paywall-gate button:hover { background: #e0b94f; }
+.paywall-disclaimer { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); letter-spacing: 0.05em; }
+.success-msg-paywall { display: none; font-family: var(--font-mono); font-size: 12px; color: var(--green); letter-spacing: 0.08em; padding: 13px 16px; border: 0.5px solid rgba(46,204,113,0.3); border-radius: 4px; background: rgba(46,204,113,0.05); text-align: center; margin-bottom: 10px; }
+.proof-strip { position: relative; z-index: 1; border-top: 0.5px solid var(--border); border-bottom: 0.5px solid var(--border); padding: 2.5rem 1.5rem; background: var(--bg2); }
+.proof-inner { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 2rem; text-align: center; }
+.proof-num { font-family: var(--font-display); font-size: 42px; color: var(--gold); line-height: 1; }
+.proof-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.15em; color: var(--text-dim); text-transform: uppercase; margin-top: 4px; }
+footer { position: relative; z-index: 1; padding: 1.5rem 2.5rem; border-top: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+footer p { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); letter-spacing: 0.08em; }
+@keyframes tape { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 700px) {
+  .pick-card { grid-template-columns: 1fr; }
+  .pick-left { border-right: none; border-bottom: 0.5px solid var(--border); padding-right: 0; padding-bottom: 1.5rem; }
+  .pick-matrix { grid-template-columns: repeat(2, 1fr); }
+  .leaps-row { grid-template-columns: repeat(2, 1fr); }
+  nav { padding: 1rem 1.25rem; }
+  .nav-tag { display: none; }
+  .locked-row { gap: 8px; }
+}
 </style>
 </head>
 <body>
@@ -591,259 +138,284 @@
   <div class="nav-tag">CDF Framework /// Catalyst Detection</div>
 </nav>
 
-<!-- TICKER TAPE -->
-<div style="height: 41px; margin-top: 57px;"></div>
-<div class="tape-wrapper">
-  <div class="tape-inner" id="tape"></div>
-</div>
+<div class="tape-wrapper"><div class="tape-inner" id="tape"></div></div>
 
-<!-- HERO -->
 <section class="hero">
   <div class="hero-eyebrow">Stockologi Presents</div>
   <div class="hero-title">YOLO<span>10</span></div>
-  <p class="hero-sub">
-    <strong>10 stocks. 5 sectors.</strong> Two plays per sector — one the institutions already own, one retail can actually get rich on. CDF-scored. Timestamped. Track record public.
-  </p>
-
+  <p class="hero-sub"><strong>10 stocks. 5 sectors.</strong> CDF-scored across 8 criteria. Timestamped. Track record fully public. The asymmetric plays retail can actually build wealth on.</p>
+  <div class="stamp-row">
+    <div class="stamp"><div class="stamp-dot"></div>3 picks live now — free</div>
+    <div class="stamp"><div class="stamp-dot gold"></div>7 picks locked — early access $99</div>
+    <div class="stamp"><div class="stamp-dot"></div>Timestamped March 27, 2026</div>
+  </div>
   <div class="gate-box">
     <div class="gate-form" id="gateForm1">
       <input type="email" id="email1" placeholder="your@email.com" />
       <button onclick="handleSubmit('email1','gateForm1','success1')">Get Early Access</button>
     </div>
-    <div class="success-msg" id="success1">You're on the list. Watch for the reveal email.</div>
-    <p class="gate-note">No spam. Ever. <span>Launching soon.</span></p>
+    <div class="success-msg" id="success1">You're on the list. We'll reach out before launch.</div>
+    <p class="gate-note">No spam. Ever. <span>Early access list open now.</span></p>
   </div>
 </section>
 
-<!-- BLURRED LEADERBOARD -->
-<section class="board-section">
-  <p class="board-label">// YOLO10 Leaderboard — Access Restricted</p>
-  <div class="board-wrapper">
-    <div class="board-blur">
-      <div class="board-header">
-        <span>Sector</span>
-        <span>Ticker</span>
-        <span>Profile</span>
-        <span>CDF Score</span>
-        <span>Signal</span>
+<div class="section-wrap">
+  <div class="section-label">// YOLO10 — Live CDF Picks — Free Access</div>
+  <div class="picks-grid">
+
+    <!-- PICK 1: TWLO -->
+    <div class="pick-card">
+      <div class="pick-left">
+        <div class="pick-num">PICK 01 / 10</div>
+        <div class="pick-ticker">TWLO</div>
+        <div class="pick-name">Twilio Inc.</div>
+        <div class="pick-name" style="color:var(--text-mid)">NYSE · Tech</div>
+        <div class="pick-type type-leaps">LEAPS Play</div>
       </div>
-      <!-- DEFENSE -->
-      <div class="board-row">
-        <div><span class="sector-tag sector-defense">Defense</span></div>
-        <div class="ticker-cell"><div class="ticker-sym">RTX</div><div class="ticker-name">Raytheon Technologies</div></div>
-        <div><span class="profile-tag profile-inst">Institutional</span></div>
-        <div class="score-cell">7 / 8</div>
-        <div class="rating-cell rating-bullish">HIGH CONVICTION</div>
-      </div>
-      <div class="board-row">
-        <div><span class="sector-tag sector-defense">Defense</span></div>
-        <div class="ticker-cell"><div class="ticker-sym">KTOS</div><div class="ticker-name">Kratos Defense</div></div>
-        <div><span class="profile-tag profile-degen">Degen</span></div>
-        <div class="score-cell">6 / 8</div>
-        <div class="rating-cell rating-constructive">CONSTRUCTIVE</div>
-      </div>
-      <!-- AI -->
-      <div class="board-row">
-        <div><span class="sector-tag sector-ai">AI</span></div>
-        <div class="ticker-cell"><div class="ticker-sym">NVDA</div><div class="ticker-name">Nvidia Corp</div></div>
-        <div><span class="profile-tag profile-inst">Institutional</span></div>
-        <div class="score-cell">8 / 8</div>
-        <div class="rating-cell rating-bullish">HIGH CONVICTION</div>
-      </div>
-      <div class="board-row">
-        <div><span class="sector-tag sector-ai">AI</span></div>
-        <div class="ticker-cell"><div class="ticker-sym">SOUN</div><div class="ticker-name">SoundHound AI</div></div>
-        <div><span class="profile-tag profile-degen">Degen</span></div>
-        <div class="score-cell">5 / 8</div>
-        <div class="rating-cell rating-watch">WATCH</div>
-      </div>
-      <!-- TECH -->
-      <div class="board-row">
-        <div><span class="sector-tag sector-tech">Tech</span></div>
-        <div class="ticker-cell"><div class="ticker-sym">PATH</div><div class="ticker-name">UiPath Inc</div></div>
-        <div><span class="profile-tag profile-inst">Institutional</span></div>
-        <div class="score-cell">5 / 8</div>
-        <div class="rating-cell rating-constructive">CONSTRUCTIVE</div>
-      </div>
-      <div class="board-row">
-        <div><span class="sector-tag sector-tech">Tech</span></div>
-        <div class="ticker-cell"><div class="ticker-sym">BBAI</div><div class="ticker-name">BigBear.ai</div></div>
-        <div><span class="profile-tag profile-degen">Degen</span></div>
-        <div class="score-cell">5 / 8</div>
-        <div class="rating-cell rating-watch">WATCH</div>
-      </div>
-      <!-- ENERGY -->
-      <div class="board-row">
-        <div><span class="sector-tag sector-energy">Energy</span></div>
-        <div class="ticker-cell"><div class="ticker-sym">XOM</div><div class="ticker-name">Exxon Mobil</div></div>
-        <div><span class="profile-tag profile-inst">Institutional</span></div>
-        <div class="score-cell">6 / 8</div>
-        <div class="rating-cell rating-constructive">CONSTRUCTIVE</div>
-      </div>
-      <div class="board-row">
-        <div><span class="sector-tag sector-energy">Energy</span></div>
-        <div class="ticker-cell"><div class="ticker-sym">OKLO</div><div class="ticker-name">Oklo Inc</div></div>
-        <div><span class="profile-tag profile-degen">Degen</span></div>
-        <div class="score-cell">6 / 8</div>
-        <div class="rating-cell rating-bullish">HIGH CONVICTION</div>
-      </div>
-      <!-- MATERIALS -->
-      <div class="board-row">
-        <div><span class="sector-tag sector-materials">Materials</span></div>
-        <div class="ticker-cell"><div class="ticker-sym">MP</div><div class="ticker-name">MP Materials</div></div>
-        <div><span class="profile-tag profile-inst">Institutional</span></div>
-        <div class="score-cell">7 / 8</div>
-        <div class="rating-cell rating-bullish">HIGH CONVICTION</div>
-      </div>
-      <div class="board-row">
-        <div><span class="sector-tag sector-materials">Materials</span></div>
-        <div class="ticker-cell"><div class="ticker-sym">AIMD</div><div class="ticker-name">Ainos Inc</div></div>
-        <div><span class="profile-tag profile-degen">Degen</span></div>
-        <div class="score-cell">6 / 8</div>
-        <div class="rating-cell rating-constructive">CONSTRUCTIVE</div>
+      <div class="pick-right">
+        <div class="pick-score-row">
+          <div class="score-display">
+            <div class="score-label">CDF Score</div>
+            <div class="score-val">6<span>/8</span></div>
+          </div>
+          <div class="rating-badge rating-constructive">CONSTRUCTIVE</div>
+        </div>
+        <div class="pick-thesis">The market sold TWLO on a guidance miss, not a broken business. First full-year GAAP profit, $945M FCF, $854M buyback completed, 14% revenue growth — Druckenmiller's new position confirms smart money sees the same gap retail is missing.</div>
+        <div class="pick-matrix">
+          <div class="matrix-cell"><div class="matrix-cell-label">Catalyst</div><div class="matrix-cell-val bull">BULLISH</div></div>
+          <div class="matrix-cell"><div class="matrix-cell-label">Revenue</div><div class="matrix-cell-val bull">BULLISH</div></div>
+          <div class="matrix-cell"><div class="matrix-cell-label">Capital Return</div><div class="matrix-cell-val bull">BULLISH</div></div>
+          <div class="matrix-cell"><div class="matrix-cell-label">Balance Sheet</div><div class="matrix-cell-val bull">BULLISH</div></div>
+          <div class="matrix-cell"><div class="matrix-cell-label">Inst. Repos.</div><div class="matrix-cell-val bull">BULLISH</div></div>
+          <div class="matrix-cell"><div class="matrix-cell-label">Mgmt Execution</div><div class="matrix-cell-val watch-col">WATCH</div></div>
+          <div class="matrix-cell"><div class="matrix-cell-label">Moat</div><div class="matrix-cell-val bull">BULLISH</div></div>
+          <div class="matrix-cell"><div class="matrix-cell-label">Sentiment Gap</div><div class="matrix-cell-val watch-col">WATCH</div></div>
+        </div>
+        <div class="pick-leaps-box">
+          <div class="leaps-title">// Suggested LEAPS Structure</div>
+          <div class="leaps-row">
+            <div class="leaps-cell"><div class="leaps-cell-label">Strike</div><div class="leaps-cell-val">$150C</div></div>
+            <div class="leaps-cell"><div class="leaps-cell-label">Expiry</div><div class="leaps-cell-val">Jan 2028</div></div>
+            <div class="leaps-cell"><div class="leaps-cell-label">Est. Premium</div><div class="leaps-cell-val">~$18–22</div></div>
+            <div class="leaps-cell"><div class="leaps-cell-label">Break-even</div><div class="leaps-cell-val">~$170</div></div>
+          </div>
+        </div>
+        <div class="pick-risks"><strong>Key risks:</strong> 2026 organic guidance missed market expectations. A2P fee headwind creating 170bps margin pressure. Microsoft and Salesforce embedding comms natively into their platforms.</div>
+        <div class="timestamp-row">
+          <div class="timestamp">Signal date: <span>March 27, 2026</span></div>
+          <div class="timestamp">Price at signal: <span>~$127 — verify before trading</span></div>
+        </div>
       </div>
     </div>
 
-    <!-- OVERLAY -->
-    <div class="board-overlay">
-      <div class="lock-badge">// Access Restricted</div>
-      <div class="lock-sub">Enter your email above to unlock the full YOLO10 list</div>
+    <!-- PICK 2: LUNR -->
+    <div class="pick-card">
+      <div class="pick-left">
+        <div class="pick-num">PICK 02 / 10</div>
+        <div class="pick-ticker">LUNR</div>
+        <div class="pick-name">Intuitive Machines</div>
+        <div class="pick-name" style="color:var(--text-mid)">NASDAQ · Defense/Space</div>
+        <div class="pick-type type-direct">Direct Stock</div>
+      </div>
+      <div class="pick-right">
+        <div class="pick-score-row">
+          <div class="score-display">
+            <div class="score-label">CDF Score</div>
+            <div class="score-val">7<span>/8</span></div>
+          </div>
+          <div class="rating-badge rating-high">HIGH CONVICTION</div>
+        </div>
+        <div class="pick-thesis">The market is still pricing LUNR like a lunar lander startup. It's now a vertically integrated space prime contractor — $943M backlog, $900M–$1B 2026 revenue guidance, $180.4M NASA contract awarded March 25, and a direct line into the $151B Golden Dome defense program via Lanteris.</div>
+        <div class="pick-matrix">
+          <div class="matrix-cell"><div class="matrix-cell-label">Catalyst</div><div class="matrix-cell-val bull">BULLISH</div></div>
+          <div class="matrix-cell"><div class="matrix-cell-label">Revenue</div><div class="matrix-cell-val bull">BULLISH</div></div>
+          <div class="matrix-cell"><div class="matrix-cell-label">Capital Return</div><div class="matrix-cell-val watch-col">WATCH</div></div>
+          <div class="matrix-cell"><div class="matrix-cell-label">Balance Sheet</div><div class="matrix-cell-val watch-col">WATCH</div></div>
+          <div class="matrix-cell"><div class="matrix-cell-label">Inst. Repos.</div><div class="matrix-cell-val bull">BULLISH</div></div>
+          <div class="matrix-cell"><div class="matrix-cell-label">Mgmt Execution</div><div class="matrix-cell-val bull">BULLISH</div></div>
+          <div class="matrix-cell"><div class="matrix-cell-label">Moat</div><div class="matrix-cell-val bull">BULLISH</div></div>
+          <div class="matrix-cell"><div class="matrix-cell-label">Sentiment Gap</div><div class="matrix-cell-val bull">BULLISH</div></div>
+        </div>
+        <div class="pick-risks"><strong>Key risks:</strong> $800M Lanteris acquisition adds significant debt load. FCF still negative at -$56M. Q4 2025 revenue missed estimates by 17%. Both prior lunar landings toppled on landing — execution risk is real.</div>
+        <div class="timestamp-row">
+          <div class="timestamp">Signal date: <span>March 27, 2026</span></div>
+          <div class="timestamp">Price at signal: <span>~$20 — verify before trading</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PICK 3: OKLO -->
+    <div class="pick-card">
+      <div class="pick-left">
+        <div class="pick-num">PICK 03 / 10</div>
+        <div class="pick-ticker">OKLO</div>
+        <div class="pick-name">Oklo Inc.</div>
+        <div class="pick-name" style="color:var(--text-mid)">NYSE · Energy/Nuclear</div>
+        <div class="pick-type type-leaps">LEAPS Play</div>
+      </div>
+      <div class="pick-right">
+        <div class="pick-score-row">
+          <div class="score-display">
+            <div class="score-label">CDF Score</div>
+            <div class="score-val">5<span>/8</span></div>
+          </div>
+          <div class="rating-badge rating-constructive">CONSTRUCTIVE</div>
+        </div>
+        <div class="pick-thesis">Sam Altman, Peter Thiel, Dustin Moskovitz, and Meta are all in. A 15GW order book. A July 4, 2026 reactor criticality hard date. DOE Reactor Pilot Program gave OKLO two spots. LEAPS buy time for the binary catalyst without paying full price for a pre-revenue company.</div>
+        <div class="pick-matrix">
+          <div class="matrix-cell"><div class="matrix-cell-label">Catalyst</div><div class="matrix-cell-val bull">BULLISH</div></div>
+          <div class="matrix-cell"><div class="matrix-cell-label">Revenue</div><div class="matrix-cell-val watch-col">WATCH</div></div>
+          <div class="matrix-cell"><div class="matrix-cell-label">Capital Return</div><div class="matrix-cell-val watch-col">WATCH</div></div>
+          <div class="matrix-cell"><div class="matrix-cell-label">Balance Sheet</div><div class="matrix-cell-val bull">BULLISH</div></div>
+          <div class="matrix-cell"><div class="matrix-cell-label">Inst. Repos.</div><div class="matrix-cell-val bull">BULLISH</div></div>
+          <div class="matrix-cell"><div class="matrix-cell-label">Mgmt Execution</div><div class="matrix-cell-val bull">BULLISH</div></div>
+          <div class="matrix-cell"><div class="matrix-cell-label">Moat</div><div class="matrix-cell-val bull">BULLISH</div></div>
+          <div class="matrix-cell"><div class="matrix-cell-label">Sentiment Gap</div><div class="matrix-cell-val watch-col">WATCH</div></div>
+        </div>
+        <div class="pick-leaps-box">
+          <div class="leaps-title">// Suggested LEAPS Structure</div>
+          <div class="leaps-row">
+            <div class="leaps-cell"><div class="leaps-cell-label">Strike</div><div class="leaps-cell-val">$60C</div></div>
+            <div class="leaps-cell"><div class="leaps-cell-label">Expiry</div><div class="leaps-cell-val">Jan 2028</div></div>
+            <div class="leaps-cell"><div class="leaps-cell-label">Est. Premium</div><div class="leaps-cell-val">~$12–16</div></div>
+            <div class="leaps-cell"><div class="leaps-cell-label">Thesis trigger</div><div class="leaps-cell-val">July 4 criticality</div></div>
+          </div>
+        </div>
+        <div class="pick-risks"><strong>Key risks:</strong> Zero revenue. $139.3M operating loss 2025. NRC license path 24–36 months. First commercial reactor 2028 at earliest. HALEU fuel supply chain unresolved. Previous NRC application rejected in 2022.</div>
+        <div class="timestamp-row">
+          <div class="timestamp">Signal date: <span>March 27, 2026</span></div>
+          <div class="timestamp">Price at signal: <span>~$52–55 — verify before trading</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PAYWALL -->
+<div class="paywall-section">
+  <div class="paywall-label">// YOLO10 — Picks 04–10 — Early Access Only</div>
+  <div class="locked-grid">
+    <div class="locked-row">
+      <div class="locked-ticker">XXXX</div>
+      <div class="locked-meta"><div class="locked-sector">Defense · Degen Play</div><div class="locked-sector">Direct Stock</div></div>
+      <div class="locked-score">? / 8</div>
+      <div class="locked-rating">HIGH CONVICTION</div>
+    </div>
+    <div class="locked-row">
+      <div class="locked-ticker">XXXX</div>
+      <div class="locked-meta"><div class="locked-sector">AI · Asymmetric</div><div class="locked-sector">Direct Stock</div></div>
+      <div class="locked-score">? / 8</div>
+      <div class="locked-rating">CONSTRUCTIVE</div>
+    </div>
+    <div class="locked-row">
+      <div class="locked-ticker">XXXX</div>
+      <div class="locked-meta"><div class="locked-sector">Materials · Degen</div><div class="locked-sector">LEAPS Play</div></div>
+      <div class="locked-score">? / 8</div>
+      <div class="locked-rating">HIGH CONVICTION</div>
+    </div>
+    <div class="locked-row">
+      <div class="locked-ticker">XXXX</div>
+      <div class="locked-meta"><div class="locked-sector">Energy · Binary</div><div class="locked-sector">Direct Stock</div></div>
+      <div class="locked-score">? / 8</div>
+      <div class="locked-rating">CONSTRUCTIVE</div>
+    </div>
+    <div class="locked-row">
+      <div class="locked-ticker">XXXX</div>
+      <div class="locked-meta"><div class="locked-sector">Tech · Turnaround</div><div class="locked-sector">LEAPS Play</div></div>
+      <div class="locked-score">? / 8</div>
+      <div class="locked-rating">CONSTRUCTIVE</div>
+    </div>
+    <div class="locked-row">
+      <div class="locked-ticker">XXXX</div>
+      <div class="locked-meta"><div class="locked-sector">Defense · Infrastructure</div><div class="locked-sector">Direct Stock</div></div>
+      <div class="locked-score">? / 8</div>
+      <div class="locked-rating">HIGH CONVICTION</div>
+    </div>
+    <div class="locked-row">
+      <div class="locked-ticker">XXXX</div>
+      <div class="locked-meta"><div class="locked-sector">AI · High Beta</div><div class="locked-sector">Direct Stock</div></div>
+      <div class="locked-score">? / 8</div>
+      <div class="locked-rating">WATCH</div>
     </div>
   </div>
-</section>
 
-<!-- PROOF STRIP -->
-<div class="proof-strip">
-  <div class="proof-inner">
-    <div class="proof-stat">
-      <div class="proof-num">4M+</div>
-      <div class="proof-label">Quarterly Views</div>
-    </div>
-    <div class="proof-stat">
-      <div class="proof-num">10K+</div>
-      <div class="proof-label">Verified Investors Since 2020</div>
-    </div>
-    <div class="proof-stat">
-      <div class="proof-num">8</div>
-      <div class="proof-label">CDF Criteria Per Rating</div>
-    </div>
-    <div class="proof-stat">
-      <div class="proof-num">100%</div>
-      <div class="proof-label">Public Track Record</div>
+  <div class="paywall-overlay">
+    <div class="paywall-card">
+      <div class="paywall-card-eyebrow">// Early Access — Limited Spots</div>
+      <div class="paywall-card-title">Unlock <span>7 More</span></div>
+      <div class="paywall-card-sub">Full CDF analysis, LEAPS structures where applicable, risk breakdowns, and timestamped track record on every remaining pick.</div>
+      <div class="paywall-includes">
+        <div class="paywall-include-item">All 7 remaining tickers with full 8-criteria CDF scorecard</div>
+        <div class="paywall-include-item">LEAPS structures — strike, expiry, premium, thesis trigger</div>
+        <div class="paywall-include-item">Full risk breakdown per pick</div>
+        <div class="paywall-include-item">Timestamped signal dates — public track record from day one</div>
+        <div class="paywall-include-item">Score updates as catalysts play out or expire</div>
+      </div>
+      <div class="paywall-price">$99</div>
+      <div class="paywall-price-sub">One time · No subscription · Early access pricing</div>
+      <div class="paywall-gate" id="paywallForm">
+        <input type="email" id="email3" placeholder="your@email.com" />
+        <button onclick="handleSubmit('email3','paywallForm','successPaywall')">Join Early Access</button>
+      </div>
+      <div class="success-msg-paywall" id="successPaywall">You're on the early access list. We'll reach out within 24 hours.</div>
+      <div class="paywall-disclaimer">We'll contact you before the full list goes live. $99 locked in at early access pricing.</div>
     </div>
   </div>
 </div>
 
-<!-- HOW IT WORKS -->
-<section class="how-section">
-  <p class="section-label">// The CDF Scoring System</p>
-  <div class="criteria-grid">
-    <div class="criterion">
-      <div class="criterion-num">01</div>
-      <div class="criterion-name">Catalyst Visibility</div>
-      <div class="criterion-desc">Specific near-term event with a hard date.</div>
-    </div>
-    <div class="criterion">
-      <div class="criterion-num">02</div>
-      <div class="criterion-name">Revenue Inflection</div>
-      <div class="criterion-desc">First profit, first revenue, FCF turning positive.</div>
-    </div>
-    <div class="criterion">
-      <div class="criterion-num">03</div>
-      <div class="criterion-name">Capital Return Signal</div>
-      <div class="criterion-desc">Buybacks, dividends, balance sheet moves.</div>
-    </div>
-    <div class="criterion">
-      <div class="criterion-num">04</div>
-      <div class="criterion-name">Balance Sheet Health</div>
-      <div class="criterion-desc">Cash runway, debt load, dilution risk.</div>
-    </div>
-    <div class="criterion">
-      <div class="criterion-num">05</div>
-      <div class="criterion-name">Institutional Repositioning</div>
-      <div class="criterion-desc">13F shifts, reclassification, analyst coverage.</div>
-    </div>
-    <div class="criterion">
-      <div class="criterion-num">06</div>
-      <div class="criterion-name">Management Execution</div>
-      <div class="criterion-desc">Guidance credibility, beat history, delivered vs stated.</div>
-    </div>
-    <div class="criterion">
-      <div class="criterion-num">07</div>
-      <div class="criterion-name">Competitive Moat</div>
-      <div class="criterion-desc">IP, partnerships, distribution locked in.</div>
-    </div>
-    <div class="criterion">
-      <div class="criterion-num">08</div>
-      <div class="criterion-name">Retail Sentiment Gap</div>
-      <div class="criterion-desc">Where market prices vs where fundamentals point.</div>
-    </div>
+<div class="proof-strip">
+  <div class="proof-inner">
+    <div><div class="proof-num">4M+</div><div class="proof-label">Quarterly Views</div></div>
+    <div><div class="proof-num">15K+</div><div class="proof-label">Verified Investors</div></div>
+    <div><div class="proof-num">8</div><div class="proof-label">CDF Criteria Per Pick</div></div>
+    <div><div class="proof-num">100%</div><div class="proof-label">Public Track Record</div></div>
   </div>
-</section>
-
-<!-- FINAL CTA -->
-<section class="final-cta">
-  <h2>10 slots.<br><span>Zero noise.</span></h2>
-  <p>Get the full YOLO10 list before it goes public.</p>
-  <div class="final-gate">
-    <div class="gate-form" id="gateForm2">
-      <input type="email" id="email2" placeholder="your@email.com" />
-      <button onclick="handleSubmit('email2','gateForm2','success2')">Get Early Access</button>
-    </div>
-    <div class="success-msg" id="success2">You're on the list. Watch for the reveal email.</div>
-    <p class="gate-note" style="margin-top:10px;">Not financial advice. For informational and research purposes only.</p>
-  </div>
-</section>
+</div>
 
 <footer>
-  <p>© 2026 Stockologi — CDF Framework</p>
-  <p>stockologi.com</p>
+  <p>© 2026 Stockologi — CDF Framework — Not financial advice. For informational purposes only.</p>
+  <p>yolo10.stockologi.com</p>
 </footer>
 
 <script>
 const tapeData = [
+  {sym:'TWLO', price:'127.09', chg:'+0.78%', up:true},
+  {sym:'LUNR', price:'20.31', chg:'+6.42%', up:true},
+  {sym:'OKLO', price:'48.20', chg:'-1.20%', up:false},
   {sym:'NVDA', price:'875.40', chg:'+2.3%', up:true},
-  {sym:'GRAB', price:'4.21', chg:'-0.8%', up:false},
-  {sym:'PATH', price:'11.24', chg:'+1.1%', up:true},
-  {sym:'KTOS', price:'28.67', chg:'+3.4%', up:true},
-  {sym:'OKLO', price:'34.18', chg:'+5.2%', up:true},
+  {sym:'BBAI', price:'3.49', chg:'-3.8%', up:false},
   {sym:'MP', price:'18.44', chg:'-1.2%', up:false},
-  {sym:'AIMD', price:'1.58', chg:'+4.6%', up:true},
+  {sym:'KTOS', price:'28.67', chg:'+3.4%', up:true},
+  {sym:'BE', price:'22.10', chg:'+1.8%', up:true},
   {sym:'SOUN', price:'7.92', chg:'+2.1%', up:true},
-  {sym:'XOM', price:'112.30', chg:'-0.3%', up:false},
-  {sym:'BBAI', price:'3.44', chg:'+6.8%', up:true},
+  {sym:'TWLO', price:'127.09', chg:'+0.78%', up:true},
 ];
-
 function buildTape() {
   const tape = document.getElementById('tape');
   const items = [...tapeData, ...tapeData];
   tape.innerHTML = items.map(t =>
-    `<span class="tape-item"><span>${t.sym}</span>${t.price} <span class="${t.up?'up':'down'}">${t.chg}</span></span>`
+    `<span class="tape-item"><span>${t.sym}</span>${t.price} <span class="${t.up?'up':'dn'}">${t.chg}</span></span>`
   ).join('');
 }
-
 buildTape();
 
 async function handleSubmit(inputId, formId, successId) {
   const email = document.getElementById(inputId).value.trim();
   if (!email || !email.includes('@')) {
-    document.getElementById(inputId).style.borderBottom = '1px solid #e05252';
+    document.getElementById(inputId).style.outline = '1px solid #e05252';
     return;
   }
-
   const btn = document.querySelector(`#${formId} button`);
   btn.textContent = 'Adding...';
   btn.disabled = true;
-
   try {
     const res = await fetch('/.netlify/functions/subscribe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: email })
     });
-
     const data = await res.json();
-
     if (res.status === 200 && data.success) {
       document.getElementById(formId).style.display = 'none';
       document.getElementById(successId).style.display = 'block';
