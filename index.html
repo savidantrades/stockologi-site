@@ -112,6 +112,37 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 .paywall-gate button:hover { background: #e0b94f; }
 .paywall-disclaimer { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); letter-spacing: 0.05em; }
 .success-msg-paywall { display: none; font-family: var(--font-mono); font-size: 12px; color: var(--green); letter-spacing: 0.08em; padding: 13px 16px; border: 0.5px solid rgba(46,204,113,0.3); border-radius: 4px; background: rgba(46,204,113,0.05); text-align: center; margin-bottom: 10px; }
+.trade-proof-section { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; padding: 0 1.5rem 1rem; }
+.trade-proof-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.2em; color: var(--gold-dim); text-transform: uppercase; margin-bottom: 2rem; padding-top: 4rem; border-top: 0.5px solid var(--border); }
+.trade-proof-card { background: var(--bg2); border: 0.5px solid var(--border-bright); border-radius: 8px; overflow: hidden; }
+.trade-proof-header { background: var(--bg3); border-bottom: 0.5px solid var(--border); padding: 1.25rem 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+.trade-proof-ticker-block { display: flex; align-items: baseline; gap: 12px; }
+.trade-proof-ticker { font-family: var(--font-display); font-size: 52px; color: var(--text); line-height: 1; }
+.trade-proof-name { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); letter-spacing: 0.08em; }
+.trade-proof-badge { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; padding: 5px 12px; border-radius: 2px; background: rgba(46,204,113,0.12); color: var(--green); border: 0.5px solid rgba(46,204,113,0.3); }
+.trade-proof-body { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+.trade-proof-stats { display: flex; flex-direction: column; gap: 1.5rem; justify-content: center; }
+.trade-stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.trade-stat { display: flex; flex-direction: column; gap: 5px; }
+.trade-stat-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.15em; color: var(--text-dim); text-transform: uppercase; }
+.trade-stat-val { font-family: var(--font-display); font-size: 36px; line-height: 1; color: var(--text); }
+.trade-stat-val.green { color: var(--green); }
+.trade-stat-val.gold { color: var(--gold); }
+.trade-stat-sub { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); letter-spacing: 0.05em; }
+.trade-proof-thesis { font-size: 13px; color: var(--text-mid); line-height: 1.65; font-style: italic; border-left: 2px solid var(--gold-dim); padding-left: 1rem; }
+.trade-proof-footer { border-top: 0.5px solid var(--border); padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.trade-proof-ts { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); letter-spacing: 0.08em; }
+.trade-proof-ts span { color: var(--gold); }
+.trade-proof-cta-note { font-family: var(--font-mono); font-size: 10px; color: var(--green); letter-spacing: 0.08em; }
+.paywall-trade-callout { background: var(--bg3); border: 0.5px solid rgba(46,204,113,0.2); border-radius: 4px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.paywall-trade-callout-num { font-family: var(--font-display); font-size: 32px; color: var(--green); line-height: 1; white-space: nowrap; }
+.paywall-trade-callout-text { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); letter-spacing: 0.05em; line-height: 1.6; }
+.paywall-trade-callout-text strong { color: var(--text-mid); }
+@media (max-width: 700px) {
+  .trade-proof-body { grid-template-columns: 1fr; }
+  .trade-proof-stats { grid-template-columns: repeat(2,1fr) !important; }
+  .trade-proof-header { flex-direction: column; align-items: flex-start; }
+}
 .proof-strip { position: relative; z-index: 1; border-top: 0.5px solid var(--border); border-bottom: 0.5px solid var(--border); padding: 2.5rem 1.5rem; background: var(--bg2); }
 .proof-inner { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 2rem; text-align: center; }
 .proof-num { font-family: var(--font-display); font-size: 42px; color: var(--gold); line-height: 1; }
@@ -158,6 +189,50 @@ footer p { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim
     <p class="gate-note">No spam. Ever. <span>Early access list open now.</span></p>
   </div>
 </section>
+
+<div class="trade-proof-section">
+  <div class="trade-proof-label">// Before You See The Picks — A Real Trade</div>
+  <div class="trade-proof-card">
+    <div class="trade-proof-header">
+      <div class="trade-proof-ticker-block">
+        <div class="trade-proof-ticker">GOOGL</div>
+        <div class="trade-proof-name">Alphabet Inc. · LEAPS Call Position · Closed</div>
+      </div>
+      <div class="trade-proof-badge">✓ CLOSED — FULL EXIT</div>
+    </div>
+    <div class="trade-proof-body" style="grid-template-columns:1fr;">
+      <div class="trade-proof-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;padding:0;border-bottom:0.5px solid var(--border);">
+        <div class="trade-stat" style="padding:1.75rem 2rem;border-right:0.5px solid var(--border);">
+          <div class="trade-stat-label">Entry Premium</div>
+          <div class="trade-stat-val">$3.70</div>
+          <div class="trade-stat-sub">100 lots · Nov 2025</div>
+        </div>
+        <div class="trade-stat" style="padding:1.75rem 2rem;border-right:0.5px solid var(--border);">
+          <div class="trade-stat-label">Exit Premium</div>
+          <div class="trade-stat-val green">~$30</div>
+          <div class="trade-stat-sub">End of Feb 2026</div>
+        </div>
+        <div class="trade-stat" style="padding:1.75rem 2rem;border-right:0.5px solid var(--border);">
+          <div class="trade-stat-label">Capital Deployed</div>
+          <div class="trade-stat-val gold">$37K</div>
+          <div class="trade-stat-sub">$3.70 × 100 contracts</div>
+        </div>
+        <div class="trade-stat" style="padding:1.75rem 2rem;">
+          <div class="trade-stat-label">Return</div>
+          <div class="trade-stat-val green">~$300K</div>
+          <div class="trade-stat-sub">~710% in ~3 months</div>
+        </div>
+      </div>
+      <div style="padding:1.75rem 2rem;">
+        <div class="trade-proof-thesis">The framework identified solid fundamentals at a mispriced entry. LEAPS gave us time without carrying full equity risk. This isn't luck — it's what CDF + proper position sizing is designed to find.</div>
+      </div>
+    </div>
+    <div class="trade-proof-footer">
+      <div class="trade-proof-ts">Signal: <span>November 2025</span> &nbsp;·&nbsp; Exit: <span>February 2026</span> &nbsp;·&nbsp; Duration: <span>~3 months</span></div>
+      <div class="trade-proof-cta-note">↓ TWLO, LUNR, OKLO are the current live calls</div>
+    </div>
+  </div>
+</div>
 
 <div class="section-wrap">
   <div class="section-label">// YOLO10 — Live CDF Picks — Free Access</div>
@@ -370,6 +445,10 @@ footer p { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim
         <div class="paywall-include-item">Full risk breakdown per pick</div>
         <div class="paywall-include-item">Timestamped signal dates — public track record from day one</div>
         <div class="paywall-include-item">Score updates as catalysts play out or expire</div>
+      </div>
+      <div class="paywall-trade-callout">
+        <div class="paywall-trade-callout-num">710%</div>
+        <div class="paywall-trade-callout-text">Our last closed LEAPS position — <strong>GOOGL calls entered at $3.70, exited ~$30.</strong> $37K deployed. ~$300K returned. Same CDF framework. Same LEAPS structure. These three picks are next.</div>
       </div>
       <div class="paywall-price">$99</div>
       <div class="paywall-price-sub">One time · No subscription · Early access pricing</div>
